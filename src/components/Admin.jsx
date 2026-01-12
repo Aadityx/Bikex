@@ -1,54 +1,51 @@
 import { useState } from "react";
 
-const initialProducts = [
-  { id: 1, name: "Product 1", price: 100, image: "https://via.placeholder.com/180" },
-  { id: 2, name: "Product 2", price: 150, image: "https://via.placeholder.com/180" }
-];
-
-const Admin = () => {
-  const [products, setProducts] = useState(initialProducts);
+const Admin = ({ products, setProducts }) => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [imageFile, setImageFile] = useState(null);
+  const [image, setImage] = useState(null);
 
-  const handleFileChange = (e) => {
+  const handleImage = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setImageFile(reader.result);
-      reader.readAsDataURL(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result);
+    reader.readAsDataURL(file);
   };
 
   const addProduct = (e) => {
     e.preventDefault();
-    const newProduct = { id: Date.now(), name, price: Number(price), image: imageFile };
-    setProducts([...products, newProduct]);
+    setProducts([
+      ...products,
+      { id: Date.now(), name, price, image }
+    ]);
     setName("");
     setPrice("");
-    setImageFile(null);
+    setImage(null);
   };
 
   const deleteProduct = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
+    setProducts(products.filter(p => p.id !== id));
   };
 
   return (
-    <div>
-      <h2>Admin Panel</h2>
-      <form onSubmit={addProduct}>
-        <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <input placeholder="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
-        <input type="file" onChange={handleFileChange} required />
-        {imageFile && <img src={imageFile} alt="Preview" style={{ width: "100%", margin: "10px 0" }} />}
-        <button type="submit">Add Product</button>
+    <div className="page">
+      <form className="admin-form" onSubmit={addProduct}>
+        <h2>Add Product</h2>
+        <input placeholder="Product name" value={name} onChange={e => setName(e.target.value)} required />
+        <input type="number" placeholder="Price" value={price} onChange={e => setPrice(e.target.value)} required />
+        <input type="file" onChange={handleImage} required />
+        <button>Add</button>
       </form>
 
-      <div className="admin-product-list">
-        {products.map((p) => (
-          <div className="admin-product-item" key={p.id}>
-            <span>{p.name} - ₹{p.price}</span>
-            <button onClick={() => deleteProduct(p.id)}>Delete</button>
+      <div className="card-grid">
+        {products.map(p => (
+          <div className="card" key={p.id}>
+            <img src={p.image} alt={p.name} />
+            <h3>{p.name}</h3>
+            <p>₹{p.price}</p>
+            <button className="delete" onClick={() => deleteProduct(p.id)}>
+              Delete
+            </button>
           </div>
         ))}
       </div>
